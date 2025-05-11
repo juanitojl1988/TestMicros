@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  db_bank:
+    image: postgres:12
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - TZ=America/Guayaquil
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata1:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - backend
+    restart: unless-stopped
+
+
+  customer-service:
+    image: customer-service:1.0.0
+    container_name: customer-service
+    build:
+      context: ./customer-service/
+      dockerfile: Dockerfile
+    depends_on:
+      - db_bank
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_R2DBC_URL=r2dbc:postgresql://db_bank:5432/${POSTGRES_DB_COSTUMER}
+      - SPRING_R2DBC_USERNAME=${POSTGRES_USER}
+      - SPRING_R2DBC_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "8081:8080"
+    networks:
+      - backend
+    restart: unless-stopped
+
+
+  transactions-service:
+    image: transactions-service:1.0.0
+    container_name: transactions-service
+    build:
+      context: ./account-transaction-service/
+      dockerfile: Dockerfile
+    depends_on:
+      - db_bank
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_R2DBC_URL=r2dbc:postgresql://db_bank:5432/${POSTGRES_DB_TRANSACTION}
+      - SPRING_R2DBC_USERNAME=${POSTGRES_USER}
+      - SPRING_R2DBC_PASSWORD=${POSTGRES_PASSWORD}
+      - CUSTOMER_SERVICE_URL=http://customer-service:8081/api/v1/customer/
+    ports:
+      - "8082:8080"
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  pgdata1:

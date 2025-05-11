@@ -1,0 +1,32 @@
+-- Tabla de cuentas
+CREATE TABLE taccount (
+  id               BIGSERIAL PRIMARY KEY,
+  number_account   VARCHAR(50)  NOT NULL,
+  type_account     VARCHAR(30)  NOT NULL,  -- almacenar el name() de AccountConstant.TypeAccount
+  initial_balance  DECIMAL(19,4) NOT NULL,
+  state            VARCHAR(30)  NOT NULL,  -- almacenar el name() de AccountConstant.State
+  customer_id      BIGINT       NOT NULL,
+  date_create      TIMESTAMP    NOT NULL DEFAULT NOW());
+
+-- Índices recomendados para mejorar consultas
+CREATE INDEX idx_taccount_number   ON taccount(number_account);
+CREATE INDEX idx_taccount_customer ON taccount(customer_id);
+
+
+-- Tabla de transacciones
+CREATE TABLE ttransaction (
+  id                BIGSERIAL PRIMARY KEY,
+  date_transaction  TIMESTAMP    NOT NULL DEFAULT NOW(),
+  type_transaction  VARCHAR(30)  NOT NULL,  -- almacenar el name() de TransactionConstant.TypeTransaction
+  value             DECIMAL(19,4) NOT NULL,
+  balance           DECIMAL(19,4) NOT NULL,
+  state             VARCHAR(30)  NOT NULL,  -- almacenar el name() de AccountConstant.State
+  account_id        BIGINT       NOT NULL,
+  CONSTRAINT fk_transaction_account
+    FOREIGN KEY (account_id)
+    REFERENCES taccount(id)
+    ON DELETE CASCADE
+);
+
+-- Índice recomendado para la consulta por cuenta
+CREATE INDEX idx_ttransaction_account ON ttransaction(account_id);
