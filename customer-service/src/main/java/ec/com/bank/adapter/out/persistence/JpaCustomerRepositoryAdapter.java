@@ -6,20 +6,27 @@ import ec.com.bank.adapter.out.persistence.mapper.CustomerDboMapper;
 import ec.com.bank.adapter.out.persistence.mapper.PersonDboMapper;
 import ec.com.bank.application.port.out.CreateCustomerPort;
 import ec.com.bank.application.port.out.GetCustomerPort;
+import ec.com.bank.application.port.out.UpdateCustomerPort;
 import ec.com.bank.common.PersistenceAdapter;
+import ec.com.bank.domain.exception.ApplicationException;
 import ec.com.bank.domain.exception.CustomerAlreadyExistsException;
 import ec.com.bank.domain.exception.CustomerNotFoundException;
 import ec.com.bank.domain.model.dto.CustomerCreateDto;
 import ec.com.bank.domain.model.dto.CustomerDto;
+import ec.com.bank.domain.model.dto.CustomerUpdateDto;
 import ec.com.bank.domain.model.dto.PersonDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.Query.query;
+
 @Slf4j
 @PersistenceAdapter
-public class JpaCustomerRepositoryAdapter implements GetCustomerPort, CreateCustomerPort {
+public class JpaCustomerRepositoryAdapter implements GetCustomerPort, CreateCustomerPort, UpdateCustomerPort {
 
     private final JpaCustomerRepository jpaCustomerRepository;
     private final JpaPersonRepository jpaPersonRepository;
@@ -50,7 +57,17 @@ public class JpaCustomerRepositoryAdapter implements GetCustomerPort, CreateCust
                             customerEntity.setId(savedPerson.getId());
                             return r2dbcEntityTemplate.insert(CustomerEntity.class).using(customerEntity);
                         }))
-                .map(customerDboMap::toDbo).onErrorMap(e -> e instanceof CustomerAlreadyExistsException ? e : new RuntimeException("Error creando cliente: " + e.getMessage(), e));
+                .map(customerEntity1 -> {
+                    CustomerDto customerDto=  customerDboMap.toDbo(customerEntity1);
+                    customerDto.setGender(personDto.getGender());
+                    customerDto.setAge(personDto.getAge());
+                    customerDto.setPhone(personDto.getPhone());
+                    customerDto.setAddresses(personDto.getAddresses());
+                    customerDto.setIdentification(personDto.getIdentification());
+                    customerDto.setAddresses(personDto.getAddresses());
+                    customerDto.setName(personDto.getName());
+                    return customerDto;
+                }).onErrorMap(e -> e instanceof CustomerAlreadyExistsException ? e : new RuntimeException("Error creando cliente: " + e.getMessage(), e));
     }
 
     @Override
@@ -82,4 +99,47 @@ public class JpaCustomerRepositoryAdapter implements GetCustomerPort, CreateCust
     }
 
 
+    @Transactional
+    @Override
+    public Mono<CustomerDto> update(Long id, CustomerUpdateDto customerUpdateDto) {
+        return r2dbcEntityTemplate.select(CustomerEntity.class)
+                .matching(query(where("id").is(id)))
+                .one()
+                .switchIfEmpty(Mono.error(new CustomerNotFoundException(id.toString())))
+                .flatMap(existingCustomer -> {
+                    PersonDto personDto = PersonDto.builder()
+                            .identification(customerUpdateDto.getIdentification())
+                            .name(customerUpdateDto.getName())
+                            .gender(customerUpdateDto.getGender())
+                            .age(customerUpdateDto.getAge())
+                            .addresses(customerUpdateDto.getAddresses())
+                            .phone(customerUpdateDto.getPhone())
+                            .build();
+
+                    PersonEntity personEntity = personDboMapper.toDomain(personDto);
+                    personEntity.setId(existingCustomer.getId());
+
+                    return jpaPersonRepository.save(personEntity)
+                            .flatMap(savedPerson -> {
+                                CustomerEntity customerEntity = customerDboMap.toDomainUpdate(customerUpdateDto);
+                                customerEntity.setId(id);
+                                return r2dbcEntityTemplate.update(customerEntity);
+                            });
+                })
+                .map(savedCustomer -> {
+                    CustomerDto out = customerDboMap.toDbo(savedCustomer);
+                    // Rellenar campos que vienen de Person
+                    out.setIdentification(customerUpdateDto.getIdentification());
+                    out.setName(customerUpdateDto.getName());
+                    out.setGender(customerUpdateDto.getGender());
+                    out.setAge(customerUpdateDto.getAge());
+                    out.setAddresses(customerUpdateDto.getAddresses());
+                    out.setPhone(customerUpdateDto.getPhone());
+                    return out;
+                })
+                .onErrorMap(e -> {
+                    if (e instanceof ApplicationException) return e;
+                    return new RuntimeException("Error updating customer: " + e.getMessage(), e);
+                });
+    }
 }

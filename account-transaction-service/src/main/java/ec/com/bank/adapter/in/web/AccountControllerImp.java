@@ -34,6 +34,7 @@ public class AccountControllerImp implements AccountController {
                 .doOnNext(d -> log.info("Payload válido recibido: {}", d))
                 .flatMap(dto -> createAccountUseCase.create(dto)
                         .map(acc -> ResponseEntity.status(HttpStatus.CREATED).body(acc))
+                        .defaultIfEmpty(ResponseEntity.notFound().build())
                 );
     }
 

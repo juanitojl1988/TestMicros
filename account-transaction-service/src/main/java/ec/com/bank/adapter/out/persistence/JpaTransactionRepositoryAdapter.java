@@ -7,7 +7,7 @@ import ec.com.bank.application.port.out.TransactionRepositoryPort;
 import ec.com.bank.common.PersistenceAdapter;
 import ec.com.bank.domain.model.dto.PaginatedResponseDto;
 import ec.com.bank.domain.model.dto.TransactionDto;
-import ec.com.bank.domain.model.dto.TransactionWithAccount;
+import ec.com.bank.domain.model.dto.TransactionWithAccountDto;
 import ec.com.bank.domain.model.exception.TransactionCreationException;
 import ec.com.bank.domain.model.util.FunctionUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -56,21 +56,19 @@ public class JpaTransactionRepositoryAdapter implements TransactionRepositoryPor
     }
 
     @Override
-    public Mono<PaginatedResponseDto<TransactionWithAccount>> findAllTransactionsForDatesAndCustomer(String dateStart, String dateEnd, Long customerId, int page, int size) {
+    public Mono<PaginatedResponseDto<TransactionWithAccountDto>> findAllTransactionsForDatesAndCustomer(String dateStart, String dateEnd, Long customerId, int page, int size) {
         long offset = (long) page * size;
         Instant start = FunctionUtils.parseDateDdMmYyyy(dateStart);
         Instant end = FunctionUtils.parseDateDdMmYyyy(dateEnd);
 
         Mono<Long> totalCount = jpaTransactionRepository.countByAccountIdAndDateTransactionBetween(customerId, start, end);
 
-        Mono<List<TransactionWithAccount>> content = jpaTransactionRepositoryR2.findPageWithAccount(customerId, start, end, size, offset)
-                // Si lo necesitas, aquí podrías mapear de entidad a DTO:
-                // .map(entity -> TransactionWithAccountMapper.from(entity))
+        Mono<List<TransactionWithAccountDto>> content = jpaTransactionRepositoryR2.findPageWithAccount(customerId, start, end, size, offset)
                 .collectList();
 
         return Mono.zip(totalCount, content).map(tuple -> {
             Long total = tuple.getT1();
-            List<TransactionWithAccount> list = tuple.getT2();
+            List<TransactionWithAccountDto> list = tuple.getT2();
 
             return new PaginatedResponseDto<>(list, page, size, total);
         });

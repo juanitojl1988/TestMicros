@@ -2,8 +2,7 @@ package ec.com.bank.application.port.out;
 
 import ec.com.bank.domain.model.dto.PaginatedResponseDto;
 import ec.com.bank.domain.model.dto.TransactionDto;
-import ec.com.bank.domain.model.dto.TransactionWithAccount;
-import org.springframework.http.ResponseEntity;
+import ec.com.bank.domain.model.dto.TransactionWithAccountDto;
 import reactor.core.publisher.Mono;
 
 public interface TransactionRepositoryPort {
@@ -13,6 +12,6 @@ public interface TransactionRepositoryPort {
 
     Mono<TransactionDto> findFirstByAccountIdAndDateTo(Long idAccount);
 
-    Mono<PaginatedResponseDto<TransactionWithAccount>> findAllTransactionsForDatesAndCustomer(String dateStart, String dateEnd, Long customerId, int page, int size);
+    Mono<PaginatedResponseDto<TransactionWithAccountDto>> findAllTransactionsForDatesAndCustomer(String dateStart, String dateEnd, Long customerId, int page, int size);
 
 }

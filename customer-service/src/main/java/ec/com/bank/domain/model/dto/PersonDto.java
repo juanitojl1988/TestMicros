@@ -1,11 +1,11 @@
 package ec.com.bank.domain.model.dto;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@Builder
 public class PersonDto {
 
     private Long id;

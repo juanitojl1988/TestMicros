@@ -53,7 +53,7 @@ public class TransactionControllerImp implements TransactionController {
     }
 
     @Override
-    public Mono<ResponseEntity<PaginatedResponseDto<TransactionWithAccount>>> finAllTransactionsForDatesAndCustomer(String dateStart, String dateEnd, Long customerId, int page, int size) {
+    public Mono<ResponseEntity<PaginatedResponseDto<TransactionWithAccountDto>>> finAllTransactionsForDatesAndCustomer(String dateStart, String dateEnd, Long customerId, int page, int size) {
         return reportTransactionUseCase.finAllTransactionsForDatesAndCustomer(dateStart, dateEnd, customerId, page, size)
                 .map(transactions -> {
                     return new ResponseEntity<>(transactions, HttpStatus.OK);

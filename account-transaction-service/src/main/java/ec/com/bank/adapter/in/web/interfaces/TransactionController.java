@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 
 @Tag(name = "Transacciones", description = "Operaciones CRUD y consultas de transacciones bancarias")
 public interface TransactionController {
@@ -42,7 +40,7 @@ public interface TransactionController {
     @Operation(summary = "Listado de transacciones paginado y por rango de fechas")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Listado de transacciones", content = @Content(schema = @Schema(implementation = TransactionDto.class))), @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content), @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)})
     @GetMapping("transaction/finAllTransactionsForDatesAndCustomer")
-    Mono<ResponseEntity<PaginatedResponseDto<TransactionWithAccount>>> finAllTransactionsForDatesAndCustomer(@Parameter(description = "Fecha de inicio (YYYY-MM-DD)", example = "2025-05-01") @RequestParam String dateStart, @Parameter(description = "Fecha de fin (YYYY-MM-DD)", example = "2025-05-31") @RequestParam String dateEnd, @Parameter(description = "Identificador del cliente", example = "789") @RequestParam Long customerId, @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam int page, @Parameter(description = "Tamaño de página", example = "20") @RequestParam int size);
+    Mono<ResponseEntity<PaginatedResponseDto<TransactionWithAccountDto>>> finAllTransactionsForDatesAndCustomer(@Parameter(description = "Fecha de inicio (YYYY-MM-DD)", example = "2025-05-01") @RequestParam String dateStart, @Parameter(description = "Fecha de fin (YYYY-MM-DD)", example = "2025-05-31") @RequestParam String dateEnd, @Parameter(description = "Identificador del cliente", example = "789") @RequestParam Long customerId, @Parameter(description = "Número de página (0-based)", example = "0") @RequestParam int page, @Parameter(description = "Tamaño de página", example = "20") @RequestParam int size);
 
 
 }

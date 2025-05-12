@@ -1,5 +1,7 @@
 package ec.com.bank.domain.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,4 +16,19 @@ public class ErrorResponse {
     private String        code;
     private String        message;
     private String        path;
+
+    public String toJson() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "{"
+                    + "\"timestamp\":\"" + timestamp + "\","
+                    + "\"status\":" + status + ","
+                    + "\"error\":\"" + error + "\","
+                    + "\"code\":\"" + code + "\","
+                    + "\"message\":\"" + message + "\","
+                    + "\"path\":\"" + path + "\""
+                    + "}";
+        }
+    }
 }

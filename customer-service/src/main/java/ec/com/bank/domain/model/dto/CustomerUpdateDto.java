@@ -1,14 +1,16 @@
 package ec.com.bank.domain.model.dto;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
-
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @Builder
-public class CustomerCreateDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class CustomerUpdateDto {
 
     @NotBlank(message = "Identification is required")
     @Size(max = 50, message = "Identification must be at most 50 characters")
@@ -44,8 +46,4 @@ public class CustomerCreateDto {
     @NotNull(message = "State is required")
     @Pattern(regexp = "[AE]", message = "State must be 'A' or 'E'")
     private Character state;
-
-    public CustomerCreateDto() {
-
-    }
 }
