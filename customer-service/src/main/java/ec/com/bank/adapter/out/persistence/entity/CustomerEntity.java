@@ -15,7 +15,7 @@ public class CustomerEntity {
     @Column("id")
     private Long id;
     @Column("state")
-    private Character state;
+    private String state;
     @Column("password")
     private String password;
 }

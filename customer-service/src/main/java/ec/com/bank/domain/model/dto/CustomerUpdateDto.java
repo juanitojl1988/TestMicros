@@ -22,7 +22,7 @@ public class CustomerUpdateDto {
 
     @NotNull(message = "Gender is required")
     @Pattern(regexp = "[MF]", message = "Gender must be 'M' or 'F'")
-    private Character gender;
+    private String gender;
 
     @Min(value = 0, message = "Age must be non-negative")
     @Max(value = 150, message = "Age must be realistic")
@@ -45,5 +45,5 @@ public class CustomerUpdateDto {
 
     @NotNull(message = "State is required")
     @Pattern(regexp = "[AE]", message = "State must be 'A' or 'E'")
-    private Character state;
+    private String state;
 }

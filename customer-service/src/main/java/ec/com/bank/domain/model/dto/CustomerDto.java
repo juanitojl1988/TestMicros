@@ -11,12 +11,12 @@ public class CustomerDto {
     private Long id;
     private String identification;
     private String name;
-    private Character gender;
+    private String gender;
     private int age;
     private String addresses;
     private String phone;
     private String password;
-    private Character state;
+    private String state;
 
     public CustomerDto() {
 

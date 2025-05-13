@@ -20,7 +20,8 @@ public class CustomerCreateDto {
 
     @NotNull(message = "Gender is required")
     @Pattern(regexp = "[MF]", message = "Gender must be 'M' or 'F'")
-    private Character gender;
+    @Size(min = 1, max = 1, message = "State must be exactly one character")
+    private String gender;
 
     @Min(value = 0, message = "Age must be non-negative")
     @Max(value = 150, message = "Age must be realistic")
@@ -41,11 +42,10 @@ public class CustomerCreateDto {
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     private String password;
 
-    @NotNull(message = "State is required")
+    @NotBlank(message = "State is required")
     @Pattern(regexp = "[AE]", message = "State must be 'A' or 'E'")
-    private Character state;
+    @Size(min = 1, max = 1, message = "State must be exactly one character")
+    private String state;
 
-    public CustomerCreateDto() {
 
-    }
 }

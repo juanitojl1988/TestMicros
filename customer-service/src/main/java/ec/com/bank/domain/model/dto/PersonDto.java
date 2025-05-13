@@ -11,12 +11,12 @@ public class PersonDto {
     private Long id;
     private String identification;
     private String name;
-    private Character gender;
+    private String gender;
     private int age;
     private String addresses;
     private String phone;
 
-    public PersonDto(String identification, String name, Character gender, int age, String addresses, String phone) {
+    public PersonDto(String identification, String name, String gender, int age, String addresses, String phone) {
 
         this.identification = identification;
         this.name = name;

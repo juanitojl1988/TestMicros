@@ -21,7 +21,7 @@ public class PersonEntity {
     @Column("name")
     private String name;
     @Column("gender")
-    private Character gender;
+    private String gender;
     @Column("age")
     private int age;
     @Column("addresses")
